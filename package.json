@@ -1,0 +1,28 @@
+{
+  "name": "try-videos",
+  "version": "1.0.0",
+  "description": "The task is about the operation of the video",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Cbinbin/Try-videos.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Cbinbin/Try-videos/issues"
+  },
+  "homepage": "https://github.com/Cbinbin/Try-videos#readme",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "cors": "^2.8.1",
+    "express": "^4.14.0",
+    "mongoose": "^4.6.6",
+    "multer": "^1.2.0",
+    "path": "^0.12.7"
+  }
+}

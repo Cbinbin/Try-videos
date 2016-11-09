@@ -13,16 +13,26 @@ mongoose.connect('mongodb://localhost/trying',function(err,res){
     else {console.log('Connect successfully')}
 })
 
+
+const api = require('./Api')
+const regist = require('./Regist/reg.js')
+const login = require('./Login/login.js')
 const users = require('./Users/users.js')
 const video = require('./Users/Videos/video.js')
 
 server.use(bodyParser.json())
 server.use(bodyParser.urlencoded({extended: false}))
 server.use(cors())
-server.use(express.static('public'))
+server.use('/public', express.static('public'))
+
+server.get('/api', (req,res) => {
+	res.json(api)
+})
 
 const router = express.Router()
 server.use('/',router)
+router.use('/reg', regist)
+router.use('/login', login)
 router.use('/users', users)
 router.use('/users/video', video)
 

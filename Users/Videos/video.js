@@ -16,7 +16,7 @@ var storage = multer.diskStorage({
 
 var upload = multer({ storage: storage }).single('videofile')
 
-//上传视频
+//上传视频路径
 router.post('/', (req, res) => {
   upload(req, res, (err) => {
 		if (err) {
@@ -28,24 +28,31 @@ router.post('/', (req, res) => {
     	videourl: 'localhost:1103/'+ req.file.path
     })
     vid.save((err,videos) => {
-    	if(err) res.send({ error: '文件保存失败'　})
+    	if(err) return res.send({ error: '文件保存失败'　})
     	console.log('video added success')
   		res.send(videos)
     })
 	})
 })
-//获取视频
+//获取视频路径
 router.get('/:_id', (req,res) => {
   Video.findById(req.params._id, (err,video) => {
-    if(err) res.send({ error: '获取失败' })
+    if(err) return res.send({ error: '视频获取失败' })
     res.json(video)
   })
 })
-//删除视频
+//删除视频路径
 router.delete('/:_id', (req,res) => {
   Video.remove({ _id: req.params._id }, (err) => {
-    if(err) res.send({ error: '删除失败' })
+    if(err) return res.send({ error: '删除失败' })
     res.send({ status: '已删除' })
+  })
+})
+//
+router.get('/all', (req,res) => {
+  Video.find( (err,videoss) => {
+    if(err) return res.send({ error: '视频获取失败' })
+    res.json(videoss)
   })
 })
 
@@ -54,7 +61,7 @@ router.delete('/:_id', (req,res) => {
 var user_id = new Array()
 const idid = (useid) => {
   var TF
-  Video.find({}, { _id:0, _id:1 }, (err,ids) =>{
+  Video.find({}, { _id:0, _id:1 }, (err,ids) => {
     if(err) console.error(err)
     user_id = ids.map((num) => {
       return num._id
@@ -71,9 +78,10 @@ const idid = (useid) => {
   return TF
 }
 //添加视频信息
-router.post('/:_id', (req,res) => {
+router.post('/detail/:_id', (req,res) => {
   if( idid(req.params._id) ) {
     res.send({ error: '此视频id不正确' })
+    console.log(user_id)
     return
   }
   const description = new Detail()
@@ -85,7 +93,7 @@ router.post('/:_id', (req,res) => {
     concernednumber: req.body.concernednumber
   })
   description.save((err,detail) => {
-    if(err) res.send({ error: '信息保存失败' })
+    if(err) return res.send({ message: '信息保存失败' })
     console.log('description added success')
     res.send({ status: '信息已以相同id保存' })
     // res.send(detail)
@@ -94,15 +102,22 @@ router.post('/:_id', (req,res) => {
 //获取视频信息
 router.get('/detail/:_id', (req,res) => {
   Detail.findById(req.params._id, (err,detail) => {
-    if(err) res.send({ error: '信息获取失败' })
+    if(err) return res.send({ error: '信息获取失败' })
     res.json(detail)
   })
 })
 //删除视频信息
 router.delete('/detail/:_id', (req,res) => {
   Detail.remove({ _id: req.params._id }, (err) => {
-    if(err) res.send({ error: '信息删除失败' })
+    if(err) return res.send({ error: '信息删除失败' })
     res.send({ status: '信息已删除' })
+  })
+})
+//
+router.get('/all/detail', (req,res) => {
+  Detail.find( (err,detailss) => {
+    if(err) return res.send({ error: '信息获取失败' })
+    res.json(detailss)
   })
 })
 

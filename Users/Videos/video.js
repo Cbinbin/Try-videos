@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
-var multer = require('multer')
+var multer = require('multer')　//文件上传
+var fs = require('fs') //文件操作系统
 var Video = require('../Videos')
 var Detail = require('../Videos/Details')
 
@@ -41,11 +42,20 @@ router.get('/:_id', (req,res) => {
     res.json(video)
   })
 })
-//删除视频路径
+//删除视频
 router.delete('/:_id', (req,res) => {
-  Video.remove({ _id: req.params._id }, (err) => {
-    if(err) return res.send({ error: '删除失败' })
-    res.send({ status: '已删除' })
+  Video.findOne({ _id: req.params._id}, (err,vurl) => {
+    if(!vurl) return res.send({ error: '找不到视频' })
+    //本地删除文件
+    fs.unlink(vurl.videourl.substring(15), (err) => {
+      if(err) return console.log(err)
+      console.log('video deleted success')
+    })
+    //删除路径
+    Video.remove({ _id: req.params._id }, (err) => {
+      if(err) return res.send({ error: '删除失败' })
+      res.send({ status: '已删除' })
+    })
   })
 })
 //
@@ -87,8 +97,10 @@ router.post('/detail/:_id', (req,res) => {
   const description = new Detail()
   description.set({
     _id: req.params._id,  //设置视频id和信息id为相同
+    uploader: req.body.uploader,
     title: req.body.title,
     introduction: req.body.introduction,
+    price: req.body.price,
     paidppnumber: req.body.paidppnumber,
     concernednumber: req.body.concernednumber
   })

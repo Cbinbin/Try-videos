@@ -67,7 +67,7 @@ router.post('/phone', (req,res) => {
 })
 //查看号码
 router.get('/phone', (req,res) => {
-	Phone.find({}, { _id:0, phonenumber:1 },(err,nums) => {
+	Phone.find((err,nums) => {
 		if(err) return res.send({error:'获取失败'})
 		res.json(nums)
 	})

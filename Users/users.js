@@ -1,13 +1,14 @@
 const express = require('express')
 const router = express.Router()
-var multer = require('multer')
+var multer = require('multer') //文件上传
+var fs = require('fs') //文件操作系统
 const Phone = require('../Users/Phones') //手机号码
 var Head = require('./Headprts')　//头像
 const Payword = require('./Paypwords') //支付密码
 
 
-//收藏，通知，余额(及收入支出信息，时间)，价格，视频日期
-//------------------------------------------------
+//收藏，通知，余额(及收入支出信息，时间)，昵称，视频日期
+//-----------------------------------------------
 var storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'public/images')
@@ -51,12 +52,22 @@ router.get('/image/:_id', (req,res) => {
 		res.json(image)
 	})
 })
-//删除头像路径
+//删除头像
 router.delete('/image/:_id', (req,res) => {
-	Head.remove({ _id: req.params._id}, (err) => {
-		if(err) return res.send({ error: '图片删除失败' })
-		res.send({ status: '已删除' })
+	Head.findOne({ _id: req.params._id}, (err,hurl) => {
+		if(!hurl) return res.send({ error: '找不到图片' })
+		//本地删除文件
+		fs.unlink(hurl.headprturl.substring(15), (err) => {
+			if(err) return console.log(err)
+			console.log('image deleted success')
+		})
+		//删除路径
+		Head.remove({ _id: req.params._id}, (err) => {
+			if(err) return res.send({ error: '图片删除失败' })
+			res.send({ status: '已删除' })
+		})
 	})
+	
 })
 //
 router.get('/image', (req,res) => {

@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
-const User = require('../Users') //账户
-const Phone = require('../Users/Phones') //手机号码
+const User = require('../Login') //账户
+const Phone = require('./Phones') //手机号码
 
 
 //--------------------------------------------------

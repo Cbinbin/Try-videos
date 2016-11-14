@@ -17,7 +17,8 @@ mongoose.connect('mongodb://localhost/trying',function(err,res){
 const api = require('./Api')
 const regist = require('./Regist/reg.js')
 const login = require('./Login/login.js')
-const users = require('./Users/users.js')
+const user = require('./Users/Use/use.js') //
+const image = require('./Users/Headprts/headport.js')
 const video = require('./Users/Videos/video.js')
 
 server.use(bodyParser.json())
@@ -33,8 +34,9 @@ const router = express.Router()
 server.use('/',router)
 router.use('/reg', regist)
 router.use('/login', login)
-router.use('/users', users)
-router.use('/users/video', video)
+router.use('/user', user)
+router.use('/user/image', image)
+router.use('/user/video', video)
 
 // server.use('*', (req,res) => {
 // 	res.sendfile(__dirname + '/index.html')

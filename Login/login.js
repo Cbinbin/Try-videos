@@ -1,7 +1,9 @@
 const express = require('express')
 const router = express.Router()
 const jwt = require('jsonwebtoken')
-const User = require('../Users/index.js')
+const User = require('../Login')
+const Use = require('../Users/Use')
+const Phone = require('../Regist/Phones')
 
 //登录
 router.post('/', function(req, res) {
@@ -13,10 +15,16 @@ router.post('/', function(req, res) {
 		if(admin.userpassword === req.body.userpassword) {
 			jwt.sign({userId: admin._id},
 				'secretKey',
-				{algorithm: 'HS256'},
+				{algorithm: 'HS256',
+				 expiresIn: '2h' },    //expiresIn设置token有效期
 				(err, token) => {
-					if(err) return res.send({error: '获取token失败'})					
-					res.send({token: token})
+					if(err) return res.send({error: '获取token失败'})
+					Phone.findOne({_id: admin._id}, {_id: 0, phonenumber: 1}, (err,phone) => {
+						Use.findOne({_id: admin._id}, (err,infmt) => {
+							if(err) return res.send({error: '个人信息获取失败'})
+							res.json([{token: token}, admin, phone, infmt])
+						})
+					})					
 				}
 			)
 		}

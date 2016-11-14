@@ -51,8 +51,13 @@ router.get('/one/:_vid', (req,res) => {
   })
 })
 //删除视频
+<<<<<<< HEAD
 router.delete('/one/:_vid', (req,res) => {
   Video.findOne({ _id: req.params._vid}, (err,vurl) => {
+=======
+router.delete('/:_id', (req,res) => {
+  Video.findOne({ _id: req.params._id}, (err,vurl) => {
+>>>>>>> 961ac041d431f55c95c0819799d11be6aa7fe930
     if(!vurl) return res.send({ error: '找不到视频' })
     //本地删除文件
     fs.unlink(vurl.videourl.substring(15), (err) => {
@@ -60,9 +65,15 @@ router.delete('/one/:_vid', (req,res) => {
       console.log('video deleted success')
     })
     //删除路径
+<<<<<<< HEAD
     Video.remove({ _id: req.params._vid }, (err) => {
       if(err) return res.send({ error: '路径删除失败' })
       res.send({ status: '路径已删除' })
+=======
+    Video.remove({ _id: req.params._id }, (err) => {
+      if(err) return res.send({ error: '删除失败' })
+      res.send({ status: '已删除' })
+>>>>>>> 961ac041d431f55c95c0819799d11be6aa7fe930
     })
   })
 })
@@ -96,6 +107,7 @@ router.get('/all', (req,res) => {
 //   return TF
 // }
 //添加视频信息
+<<<<<<< HEAD
 router.post('/detail/:_id/:_vid', (req,res) => {
   // if( idid(req.params._vid) ) {
   //   res.send({ error: '此视频id不正确' })
@@ -124,6 +136,29 @@ router.post('/detail/:_id/:_vid', (req,res) => {
         // res.send(detail)
       })
     })
+=======
+router.post('/detail/:_id', (req,res) => {
+  if( idid(req.params._id) ) {
+    res.send({ error: '此视频id不正确' })
+    console.log(user_id)
+    return
+  }
+  const description = new Detail()
+  description.set({
+    _id: req.params._id,  //设置视频id和信息id为相同
+    uploader: req.body.uploader,
+    title: req.body.title,
+    introduction: req.body.introduction,
+    price: req.body.price,
+    paidppnumber: req.body.paidppnumber,
+    concernednumber: req.body.concernednumber
+  })
+  description.save((err,detail) => {
+    if(err) return res.send({ message: '信息保存失败' })
+    console.log('description added success')
+    res.send({ status: '信息已以相同id保存' })
+    // res.send(detail)
+>>>>>>> 961ac041d431f55c95c0819799d11be6aa7fe930
   })  
 })
 //获取视频all信息

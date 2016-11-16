@@ -3,11 +3,10 @@ const router = express.Router()
 const jwt = require('jsonwebtoken')
 const User = require('../Login')
 const Use = require('../Users/Use')
-const Phone = require('../Regist/Phones')
 
 //登录
 router.post('/', function(req, res) {
-	User.findOne({ username : req.body.username}, (err,admin) => {
+	User.findOne({ phone : req.body.phone}, (err,admin) => {
 		if(!admin) {
 			res.send({error: '找不到此用户名'})
 			return
@@ -19,11 +18,9 @@ router.post('/', function(req, res) {
 				 expiresIn: '2h' },    //expiresIn设置token有效期
 				(err, token) => {
 					if(err) return res.send({error: '获取token失败'})
-					Phone.findOne({_id: admin._id}, {_id: 0, phonenumber: 1}, (err,phone) => {
-						Use.findOne({_id: admin._id}, (err,infmt) => {
-							if(err) return res.send({error: '个人信息获取失败'})
-							res.json([{token: token}, admin, phone, infmt])
-						})
+					Use.findOne({_id: admin._id}, (err,infmt) => {
+						if(err) return res.send({error: '个人信息获取失败'})
+						res.json([{token: token}, admin, infmt])
 					})					
 				}
 			)

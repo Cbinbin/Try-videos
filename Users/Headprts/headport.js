@@ -1,8 +1,8 @@
 const express = require('express')
 const router = express.Router()
+const jwt = require('jsonwebtoken')
 var multer = require('multer') //文件上传
 var fs = require('fs') //文件操作系统
-const Phone = require('../../Regist/Phones') //手机号码
 var Head = require('../Headprts')　//头像
 
 //-----------------------------------------------
@@ -18,38 +18,67 @@ var storage = multer.diskStorage({
 var upload = multer({ storage: storage }).single('photofile')
 
 //上传头像路径
-router.post('/:_id', (req, res) => {
+router.post('/', (req, res) => {
 	upload(req, res, (err) => {
 		if (err) {
 	        // console.log(req.file)        
 	        res.send({ message: 'something wrong' })
         	return
         }
-        Phone.findOne( { _id: req.params._id}, (err,ids) => {
-			if(!ids) {
-				res.send({ error: '此id为无效' })
-				return
-			}
+        var token = req.query.token
+		jwt.verify(token, 'secretKey', (err,usert) => {
+			if(err) return res.json('无效的token')
 	        var imag = new Head({
-	        	_id : req.params._id,
+	        	_id : usert.userId,
 	        	headprturl : 'localhost:1103/'+ req.file.path
 	        })
 	        imag.save(function(err,heads) {
-	        	if(err) res.send({ error: '文件保存失败'　})
+	        	if(err) return res.send({ error: '文件保存失败'　})
 	        	console.log('image added success')
 	      		res.send(heads)
 	        })
 		})
 	})
 })
-//获取头像路径
-router.get('/:_id', (req,res) => {
-	Head.findById(req.params._id, (err,image) => {
-		if(err) return res.send({error: '图片获取失败' })
-		res.json(image)
+//更换头像
+router.patch('/replace', (req, res) => {
+	upload(req, res, (err) => {
+		if (err) {
+	        // console.log(req.file)        
+	        res.send({ message: 'something wrong' })
+        	return
+        }
+        var token = req.query.token
+		jwt.verify(token, 'secretKey', (err,usert) => {
+			if(err) return res.json('无效的token')
+	        Head.findOne({ _id : usert.userId }, (err,hurl) => {
+	        	if(err) return res.send({error: '无头像'})
+	        	fs.unlink(hurl.headprturl.substring(15), (err) => {
+					if(err) return console.log(err)
+					console.log('image deleted success')
+				})
+			    hurl.headprturl = 'localhost:1103/'+ req.file.path
+		        hurl.save(function(err,heads) {
+		        	if(err) return res.send({ error: '文件保存失败'　})
+		        	console.log('image replace success')
+		      		res.send(heads)
+		        })
+	        })
+		})
 	})
 })
-//删除头像
+//获取头像路径
+router.get('/', (req,res) => {
+	var token = req.query.token
+	jwt.verify(token, 'secretKey', (err,usert) => {
+		if(err) return res.json('无效的token')
+		Head.findById( usert.userId, (err,image) => {
+			if(err) return res.send({error: '图片获取失败' })
+			res.json(image)
+		})
+	})
+})
+//删除头像(暂时不用)
 router.delete('/:_id', (req,res) => {
 	Head.findOne({ _id: req.params._id}, (err,hurl) => {
 		if(!hurl) return res.send({ error: '找不到图片' })
@@ -66,8 +95,8 @@ router.delete('/:_id', (req,res) => {
 	})
 	
 })
-//
-router.get('/', (req,res) => {
+//(暂时不用)
+router.get('/all', (req,res) => {
 	Head.find( (err,imagess) => {
 		if(err) {
 			console.log(err)

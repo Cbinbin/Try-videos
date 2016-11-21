@@ -6,6 +6,7 @@ var fs = require('fs') //文件操作系统
 var Video = require('../Videos')
 var Detail = require('../Videos/Details')
 const Use = require('../Use')
+var Videophoto = require('../Videoptos')
 
 
 var storage = multer.diskStorage({
@@ -107,22 +108,26 @@ router.post('/detail/:_vid', (req,res) => {
       if(!user) return res.send({error: '用户id错误'})
       Video.findOne({_id: req.params._vid}, (err,vlj) => {
         if(!vlj) return res.send({error: '视频id错误'})
-        const description = new Detail()
-        description.set({
-          _id: req.params._vid,  //设置视频id和信息id为相同
-          uploader: user.nickname,
-          title: req.body.title,
-          vdourl: vlj.videourl,
-          introduction: req.body.introduction,
-          price: req.body.price,
-          paidppnumber: req.body.paidppnumber,
-          concernednumber: req.body.concernednumber
-        })
-        description.save((err,detail) => {
-          if(err) return res.send({ message: '信息保存失败' })
-          console.log('description added success')
-          res.send({ status: '信息已以相同id保存' })
-          // res.send(detail)
+        Videophoto.findOne({_id: req.params._vid}, (err,vpurl) => {
+          if(!vpurl) return res.send({warning: '请先上传帧图'})
+          const description = new Detail()
+          description.set({
+            _id: req.params._vid,  //设置视频id和信息id为相同
+            uploader: user.nickname,
+            title: req.body.title,
+            vdourl: vlj.videourl,
+            vdoPhotourl: vpurl.videoPhotoUrl,
+            introduction: req.body.introduction,
+            price: req.body.price,
+            paidppnumber: req.body.paidppnumber,
+            concernednumber: req.body.concernednumber
+          })
+          description.save((err,detail) => {
+            if(err) return res.send({ message: '信息保存失败' })
+            console.log('description added success')
+            res.send({ status: '信息已以相同id保存' })
+            // res.send(detail)
+          })
         })
       })
     })
@@ -146,17 +151,29 @@ router.delete('/detail/:_vid', (req,res) => {
         if(!video) return res.send({ error: '视频id错误' })
         //本地删除文件
         fs.unlink(video.videourl.substring(15), (err) => {
-          if(err) return console.log(err)
+          if(err) console.log({ error: '视频删除失败' })
           console.log('video file deleted success')
+        })
+        //删除帧图
+        Videophoto.findOne({ _id: req.params._vid}, (err,vp) => {
+          if(!vp) return console.log({error: '无帧图'})
+          fs.unlink(vp.videoPhotoUrl.substring(15), (err) => {
+            if(err) console.log({ error: '帧图删除失败' })
+            console.log('videoPhoto file deleted success')
+          })
+          Videophoto.remove({ _id: req.params._vid }, (err) => {
+            if(err) console.log({ error: '帧图路径删除失败' })
+            console.log('videoPhoto url deleted success')
+          })
         })
         //删除路径
         Video.remove({ _id: req.params._vid }, (err) => {
-          if(err) return res.send({ error: '视频路径删除失败' })
+          if(err) console.log({ error: '视频路径删除失败' })
           console.log('video url deleted success')
           // res.send({ status: '已删除' })
         })
         Detail.remove({ _id: req.params._vid }, (err) => {
-          if(err) return res.send({ error: '信息删除失败' })
+          if(err) console.log({ error: '信息删除失败' })
           res.send({ status: '视频和信息已删除' })
         })
       })

@@ -4,6 +4,7 @@ const DetailSchema = new mongoose.Schema({
 	uploader: String,   //上传者
 	title: String,  //视频名
 	vdourl: String,   //视频路径
+	vdoPhotourl: String,   //帧图路径
 	introduction: String,   //简介
 	price: Number,   //视频价格
 	paidppnumber: Number,　 　//付费人数

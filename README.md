@@ -148,8 +148,18 @@ The task is about the operation of the video
     //文件将保存在项目public/videos中,以url保存入数据库
     //注意 key : {videofile} 
     //返回视频路径及id
+
+### 上传帧图
+    POST   http://localhost:1103/user/videophoto/:_vid?token=${token}
+    //文件将保存在项目public/vidphotos中,以url保存入数据库
+    //注意 key : {vidphotofile}
+    //返回视频路径及id
+
+### 替换帧图
+    PATCH   http://localhost:1103/user/videophoto/:_vid/replace?token=${token}
+    //跟上传一样
     
-### 设置视频信息
+### 设置视频信息(先上传帧图,否则会报错)
     POST   http://localhost:1103/user/video/detail/:_vid?token=${token}    /_vid为视频的id/
 ------------------------------------------------------
     {
@@ -162,3 +172,5 @@ The task is about the operation of the video
     }
 ### 删除视频及信息
     DELETE   http://localhost:1103/user/video/detail/:_vid?token=${token}    /_vid为视频的id/
+### 获取全部视频信息
+    GET   http://localhost:1103/user/video/all/detail

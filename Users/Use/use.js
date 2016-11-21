@@ -14,32 +14,39 @@ router.post('/information', (req,res) => {
 	jwt.verify(token, 'secretKey', (err,usert) => {
 		if(err) return res.json('无效的token')
 		const uu = new Use()
-		if(req.body.nickname == null) req.body.nickname = ""
-		if(req.body.paypassword == null) req.body.paypassword = ""
-		if(req.body.balance == null) req.body.balance = 0	
-		if(req.body.balance == "") req.body.balance = 0 //设置余额为0
-		if(req.body.notices == null) req.body.notices = []
-		if(req.body.collects == null) req.body.collects = []
-		uu.set({
-			_id : usert.userId,
-			nickname : req.body.nickname,
-			paypassword : req.body.paypassword,
-			balance : req.body.balance,
-			notices : req.body.notices,
-			collects : req.body.collects
-		})
-		uu.save((err) => {
-			if(err) return res.send({error: '个人信息已存在,保存失败'})
-			console.log('information added success')
-			res.send({status: '信息已保存'})
+		Use.findOne({ nickname: req.body.nickname }, (err,same) => {
+			if(same) return res.send({error: '昵称已存在,请重命名' })    //昵称不允许出现相同
+			if(req.body.nickname == null) req.body.nickname = ""
+			if(req.body.paypassword == null) req.body.paypassword = ""
+			if(req.body.balance == null) req.body.balance = 0	
+			if(req.body.balance == "") req.body.balance = 0 //设置余额为0
+			if(req.body.notices == null) req.body.notices = []
+			if(req.body.collects == null) req.body.collects = []
+			uu.set({
+				_id : usert.userId,
+				nickname : req.body.nickname,
+				paypassword : req.body.paypassword,
+				balance : req.body.balance,
+				notices : req.body.notices,
+				collects : req.body.collects
+			})
+			uu.save((err) => {
+				if(err) return res.send({error: '个人信息已存在,保存失败'})
+				console.log('information added success')
+				res.send({status: '信息已保存'})
+			})
 		})
 	})
 })
 //个人信息
-router.get('/information/:_id', (req,res) => {
-	Use.findById(req.params._id, (err,usus) => {
-		if(err) return res.send({error: '个人信息获取失败' })
-		res.json(usus)
+router.get('/information', (req,res) => {
+	var token = req.query.token
+	jwt.verify(token, 'secretKey', (err,usert) => {
+		if(err) return res.json('无效的token')
+		Use.findById(usert.userId, (err,usus) => {
+			if(err) return res.send({error: '个人信息获取失败' })
+			res.json(usus)
+		})
 	})
 })
 //删除个人信息
@@ -54,8 +61,8 @@ router.delete('/information', (req,res) => {
 	})
 })
 //
-router.get('/information', (req,res) => {
-	Use.find( (err,all) => {
+router.get('/informations', (req,res) => {
+	Use.find({}, {_id:0, _id:1, nickname:1, balance:1, notices:1, collects:1}, (err,all) => {
 		if(err) return res.send({error: '信息获取失败' })
 		res.json(all)
 	})
@@ -129,27 +136,49 @@ router.patch('/nickname', (req,res) => {
 		if(err) return res.json('无效的token')
 		Use.findOne({_id: usert.userId}, (err,useinfm) => {
 			if(!useinfm) return res.send({error: '信息查找失败'})
+			if(req.body.nickname == null) return res.send({warning: '不能为空'})
 			nnn = useinfm.nickname
-			useinfm.nickname = req.body.nickname
-			useinfm.save((err) => {
-				if(err) return res.send({error: '更改失败'})
-				res.send({message: '已更改昵称'})
-			})
-			Notice.find({owner: nnn}, (err,not) => {
-				if(!not) return console.log(err)
-				not.map((item,index) => {
-					item.owner = req.body.nickname
-					item.save((err) => {
-						if(err) return console.log({error: 'n更改失败'})
-					})
+			Use.findOne({ nickname: req.body.nickname }, (err,same) => {
+				if(same) return res.send({error: '昵称已存在,请重命名' })
+				useinfm.nickname = req.body.nickname
+				useinfm.save((err) => {
+					if(err) return res.send({error: '更改失败'})
+					res.send({message: '已更改昵称'})
 				})
-			})
-			Collect.find({collector: nnn}, (err,col) => {
-				if(!col) return console.log(err)
-				col.map((item,index) => {
-					item.collector = req.body.nickname
-					item.save((err) => {
-						if(err) return console.log({error: 'n更改失败'})
+				Detail.find({uploader: nnn}, (err,det) => {
+					if(!det) return console.log(err)
+					det.map((item,index) => {
+						item.uploader = req.body.nickname
+						item.save((err) => {
+							if(err) return console.log({error: 'd更改失败'})
+						})
+					})
+				})     //连同视频信息中的上传者
+				Notice.find({owner: nnn}, (err,not) => {
+					if(!not) return console.log(err)
+					not.map((item,index) => {
+						item.owner = req.body.nickname
+						item.save((err) => {
+							if(err) return console.log({error: 'n更改失败'})
+						})
+					})
+				})    //连同通知中的本人
+				Collect.find({collector: nnn}, (err,col) => {
+					if(!col) return console.log(err)
+					col.map((item,index) => {
+						item.collector = req.body.nickname
+						item.save((err) => {
+							if(err) return console.log({error: 'cc更改失败'})
+						})
+					})
+				})    //连同收藏中的收藏人和视频作者
+				Collect.find({author: nnn}, (err,col) => {
+					if(!col) return console.log(err)
+					col.map((item,index) => {
+						item.author = req.body.nickname
+						item.save((err) => {
+							if(err) return console.log({error: 'ca更改失败'})
+						})
 					})
 				})
 			})
@@ -166,6 +195,7 @@ router.patch('/balance', (req,res) => {
 		if(err) return res.json('无效的token')
 		Use.findOne({_id: usert.userId}, (err,useinfm) => {
 			if(!useinfm) return res.send({error: '信息查找失败'})
+			if(req.body.balance == null) req.body.balance = 0
 			useinfm.balance = req.body.balance
 			useinfm.save((err) => {
 				if(err) return res.send({error: '更改失败'})

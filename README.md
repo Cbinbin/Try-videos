@@ -18,7 +18,7 @@ The task is about the operation of the video
 ### 删除账号密码
     DELETE   http://localhost:1103/reg/user/:_id
 ### 登录更换密码(需token)
-    PATCH   http://localhost:1103/reg/user/password?token=${token}
+    PATCH   http://localhost:1103/reg/password?token=${token}
 ------------------------------------------------------
     {
         "oldpassword" : ${oldpassword},    //原密码(String)

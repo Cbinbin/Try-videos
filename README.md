@@ -75,22 +75,27 @@ The task is about the operation of the video
     >>  返回图片路径及id
     {
         "_id" : "***",
-        "videourl" : "***"
+        "headprturl" : "***"
     }
 
 ### 获取头像路径
     GET   http://localhost:1103/user/image?token=${token}
 
     //通过取到的路径去找到图片
+    >>  返回头像路径及id
+    {
+        "_id" : "***",
+        "headprturl" : "***"
+    }
 ### 更换头像
     PATCH   http://localhost:1103/user/image/replace?token=${token}
 
     //和上传图片一样,只不过原来的图片就没了
 
-    >>  返回图片路径及id
+    >>  返回头像路径及id
     {
         "_id" : "***",
-        "videourl" : "***"
+        "headprturl" : "***"
     }
 ### 删除头像
     DELETE   http://localhost:1103/user/image/:_id    /_id为注册后返回用户的id/
@@ -114,6 +119,15 @@ The task is about the operation of the video
 
 ### 查看个人信息
     GET   http://localhost:1103/user/information/:_id    /_id为注册后返回用户的id/
+    >>  返回个人信息及id
+    {
+        "_id" : "***",
+        "nickname" : "***",
+        "paypassword" : "***",
+        "balance" : "***",
+        "notices" : "***",
+        "collects" : "***"
+    }
 
 ## 支付密码
 ### 1.旧支付密码验证
@@ -151,6 +165,10 @@ The task is about the operation of the video
 ### 查余额
     GET   http://localhost:1103/user/balance?token=${token}
 
+    >>  返回余额
+    {
+        "balance" : "***"
+    }
 ## 通知
 ### 提交新通知
     POST   http://localhost:1103/user/notice?token=${token}
@@ -167,6 +185,22 @@ The task is about the operation of the video
     >>  返回 message: '通知已更新'
 ### 获取用户全部通知
     GET   http://localhost:1103/user/allnotices?token=${token}
+
+    >>  返回全部通知
+    {
+        {
+            "_id" : "***",
+            "videoTitle" : "***",
+            "outlay" : ***,
+            "costTF" : "***",
+            "operaTF" : "***",
+            "rmoveTF" : "***",
+            "IrrelevantTF" : "***",
+            "other" : "***"
+        },
+        {...},
+        ...
+    }
 ### 删除全部通知
     DELETE   http://localhost:1103/user/allnotices?token=${token}
 
@@ -182,10 +216,43 @@ The task is about the operation of the video
 ### 获取用户全部收藏
     GET   http://localhost:1103/user/allcollect?token=${token}
 
+    >>  返回全部收藏
+    {
+        {
+            "_id" : "***",
+            "collector" : "***",    // 收藏者
+            "author" : "***",    //作者
+            "videoTitle" : "***",    //视频名
+            "cost" : ***,    //支付费用
+            "vdo_id" : "***"    //视频id
+        },
+        {...},
+        ...
+    }
+
 ### 获取单个收藏
     GET   http://localhost:1103/user/collect/:_cid?token=${token}    /_cid为收藏视频保存的id/
 
     >>  返回收藏信息及视频信息
+    [
+        {
+            "_id" : "***",    //收藏的id
+            "collector" : "***",    // 收藏者
+            "author" : "***",    //作者
+            "videoTitle" : "***",    //视频名
+            "cost" : ***,    //支付费用
+            "vdo_id" : "***"    //视频id
+        },
+        {
+            "_id" : "***",    //视频id
+            "uploader" : "***",    //上传者
+            "title" : "***",    //标题
+            "introduction" : "***",    //简介
+            "price" : ***,    //价格
+            "paidppnumber" : ***,    //付款人数
+            "concernednumber" : ***    //收藏人数
+        }
+    ]
 ### 清除单个收藏
     DELETE   http://localhost:1103/user/collect/:_cid?token=${token}
 ### 清除所有收藏
@@ -197,16 +264,29 @@ The task is about the operation of the video
     //文件将保存在项目public/videos中,以url保存入数据库
     //注意 key : {videofile} 
     >>  返回视频路径及id
+    {
+        "_id" : "***",
+        "videourl" : "***"
+    }
 
 ### 上传帧图
     POST   http://localhost:1103/user/videophoto/:_vid?token=${token}
     //文件将保存在项目public/vidphotos中,以url保存入数据库
     //注意 key : {vidphotofile}
     >>  返回帧图路径及id
+    {
+        "_id" : "***",
+        "videoPhotoUrl" : "***"
+    }
 
 ### 替换帧图
     PATCH   http://localhost:1103/user/videophoto/:_vid/replace?token=${token}
     //跟上传一样
+    >>  返回帧图路径及id
+    {
+        "_id" : "***",
+        "videoPhotoUrl" : "***"
+    }
     
 ### 设置视频信息(先上传帧图,否则会报错)
     POST   http://localhost:1103/user/video/detail/:_vid?token=${token}    /_vid为视频的id/
@@ -224,3 +304,17 @@ The task is about the operation of the video
     DELETE   http://localhost:1103/user/video/detail/:_vid?token=${token}    /_vid为视频的id/
 ### 获取全部视频信息
     GET   http://localhost:1103/user/video/all/detail
+    >>  返回全部视频信息
+    {   
+        {
+            "_id" : "***",    //视频id
+            "uploader" : "***",    //上传者
+            "title" : "***",    //标题
+            "introduction" : "***",    //简介
+            "price" : ***,    //价格
+            "paidppnumber" : ***,    //付款人数
+            "concernednumber" : ***    //收藏人数
+        },
+        {...},
+        ...
+    }

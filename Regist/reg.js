@@ -12,6 +12,7 @@ router.post('/user', (req,res) => {
 	User.findOne( {phone: req.body.phone}, (err,un) => {
 
 		if(req.body.phone == null) return res.send({warning: '手机号不能为空'})
+		else if(req.body.phone == "") return res.send({warning: '手机号不能为空'})
 		else if(req.body.phone.split("", 1) == 0) return res.send({warning: '手机号首位不能为0'})
 		if(un) {
 			res.send({error: '该手机号已被使用过'})

@@ -30,10 +30,11 @@ router.post('/information', (req,res) => {
 				notices : req.body.notices,
 				collects : req.body.collects
 			})
-			uu.save((err) => {
+			uu.save((err, uuu) => {
 				if(err) return res.send({error: '个人信息已存在,保存失败'})
 				console.log('information added success')
-				res.send({status: '信息已保存'})
+				// res.send({status: '信息已保存'})
+				res.json(uuu)
 			})
 		})
 	})

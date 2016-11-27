@@ -4,6 +4,7 @@ var expect = chai.expect
 
 var ID
 var testToken
+var videoID
 
 describe('注册', function() {
 	it('成功', function(done) {
@@ -175,19 +176,9 @@ describe('头像', function() {
 			done()
 		})
 	})
-	it('删除', function(done) {
-		request
-		.delete('http://localhost:1103/user/image/' + ID)
-		.end(function(err, res) {
-			if(err) return console.log(err.message)
-			expect(res.text).to.be.equal('{"status":"已删除"}')
-			done()
-		})
-	})
 })
 
 describe('视频', function() {
-	var videoID
 	it('上传', function(done) {
 		request
 		.post('http://localhost:1103/user/video?token=' + testToken)
@@ -238,12 +229,50 @@ describe('视频', function() {
 			done()
 		})
 	})
-	it('删除', function(done) {
+})
+
+describe('通知和收藏', function() {
+	it('提交新通知', function(done) {
 		request
-		.delete('http://localhost:1103/user/video/detail/' + videoID + '?token=' + testToken)
+		.post('http://localhost:1103/user/notice?token=' + testToken)
+		.send({
+			videoTitle: ''
+		})
 		.end(function(err, res) {
 			if(err) return console.log(err.message)
-			expect(res.text).to.be.equal('{"status":"视频和信息已删除"}')
+			expect(res.text).to.be.equal('{"message":"通知已更新"}')
+			done()
+		})
+	})
+	it('获取通知', function(done) {
+		request
+		.get('http://localhost:1103/user/allnotices?token=' + testToken)
+		.end(function(err, res) {
+			if(err) return console.log(err.message)
+			expect(res.body).to.be.exist
+			// console.log(res.body)
+			done()
+		})
+	})
+	it('添加收藏', function(done) {
+		request
+		.post('http://localhost:1103/user/collect/' + videoID + '?token=' + testToken)
+		.send({
+			cost: ''
+		})
+		.end(function(err, res) {
+			if(err) return console.log(err.message)
+			expect(res.text).to.be.equal('{"message":"已添加进收藏"}')
+			done()
+		})
+	})
+	it('获取收藏', function(done) {
+		request
+		.get('http://localhost:1103/user/allcollect?token=' + testToken)
+		.end(function(err, res) {
+			if(err) return console.log(err.message)
+			expect(res.body).to.be.exist
+			// console.log(res.body)
 			done()
 		})
 	})
@@ -262,6 +291,42 @@ describe('other', function() {
 })
 
 describe('删除', function() {
+	it('删除头像', function(done) {
+		request
+		.delete('http://localhost:1103/user/image/' + ID)
+		.end(function(err, res) {
+			if(err) return console.log(err.message)
+			expect(res.text).to.be.equal('{"status":"已删除"}')
+			done()
+		})
+	})
+	it('删除通知', function(done) {
+		request
+		.delete('http://localhost:1103/user/allnotices?token=' + testToken)
+		.end(function(err, res) {
+			if(err) return console.log(err.message)
+			expect(res.text).to.be.equal('{"status":"通知全部清除"}')
+			done()
+		})
+	})
+	it('清除收藏', function(done) {
+		request
+		.delete('http://localhost:1103/user/allcollectes?token=' + testToken)
+		.end(function(err, res) {
+			if(err) return console.log(err.message)
+			expect(res.text).to.be.equal('{"status":"收藏全部清除"}')
+			done()
+		})
+	})
+	it('删除视频信息', function(done) {
+		request
+		.delete('http://localhost:1103/user/video/detail/' + videoID + '?token=' + testToken)
+		.end(function(err, res) {
+			if(err) return console.log(err.message)
+			expect(res.text).to.be.equal('{"status":"视频和信息已删除"}')
+			done()
+		})
+	})
 	it('删除个人信息', function(done) {
 		request
 		.delete('http://localhost:1103/user/information?token=' + testToken)
@@ -271,7 +336,7 @@ describe('删除', function() {
 			done()
 		})
 	})
-	it('删除', function(done) {
+	it('删除账号', function(done) {
 		request
 		.delete('http://localhost:1103/reg/user/' + ID)
 		.end(function(err, res) {

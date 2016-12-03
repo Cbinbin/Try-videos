@@ -8,7 +8,7 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const path = require('path')
 const mongoose = require('mongoose')
-mongoose.connect('mongodb://cvideo:video123@ds155097.mlab.com:55097/trying',function(err,res){
+mongoose.connect('mongodb://localhost/trying',function(err,res){
     if(err) {console.log('Connect to database failed')}
     else {console.log('Connect successfully')}
 })

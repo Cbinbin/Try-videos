@@ -8,7 +8,9 @@ const DetailSchema = new mongoose.Schema({
 	introduction: String,   //简介
 	price: Number,   //视频价格
 	paidppnumber: Number,　 　//付费人数
+	paidPerson: Array,    //付费人
 	concernednumber: Number,   //收藏人数
+	cocerPerson: Array,    //收藏人
 	time: {                   // 创建时间
 		createAt: {
 			type: Date,

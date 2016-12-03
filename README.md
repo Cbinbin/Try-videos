@@ -57,8 +57,11 @@ The task is about the operation of the video
          },
          {
           "nickname" : "***",
+          "headPortrait" : "***",
+          "phone" : "***",
           "paypassword" : "***",
           "balance" : ***,
+          "paidVideos" : [],
           "collects" : [],
           "notices" : []
          }
@@ -110,6 +113,7 @@ The task is about the operation of the video
         "nickname" : ${nickname},    //昵称(String)
         "paypassword" : ${paypassword},    //支付密码(String)
         "balance" : ${balance},    //余额(Number)
+        //"paidVideos" : ${paidVideos},    //支付视频(String)  [存的只是视频id]
         //"notices" : ${notices},    //通知(String)  [存的只是通知id]
         //"collects" : ${collects}    //收藏(String)  [存的只是收藏id]
         //下面两个不需要用到的
@@ -121,12 +125,14 @@ The task is about the operation of the video
     GET   http://localhost:1103/user/information/:_id    /_id为注册后返回用户的id/
     >>  返回个人信息及id
     {
-        "_id" : "***",
         "nickname" : "***",
+        "headPortrait" : "***",
+        "phone" : "***",
         "paypassword" : "***",
-        "balance" : "***",
-        "notices" : "***",
-        "collects" : "***"
+        "balance" : ***,
+        "paidVideos" : "***",
+        "collects" : "***",
+        "notices" : "***"
     }
 
 ## 支付密码
@@ -174,7 +180,7 @@ The task is about the operation of the video
     POST   http://localhost:1103/user/notice?token=${token}
 ------------------------------------------------------
     {
-        "videoTitle" : ${videoTitle},    //视频名(String)
+        "videoId" : ${videoId},    //视频ID(String)
         "outlay" : ${outlay},    //支付收入数目(Number)
         "costTF" : ${costTF},    //花费 收入判断(Boolean)
         "operaTF" : ${operaTF},    //视频操作 或 花费判断(Boolean)
@@ -190,7 +196,10 @@ The task is about the operation of the video
     {
         {
             "_id" : "***",
+            "videoId" : "***",
             "videoTitle" : "***",
+            "payor" : "***",
+            "payorId" : "***",
             "outlay" : ***,
             "costTF" : "***",
             "operaTF" : "***",
@@ -207,11 +216,6 @@ The task is about the operation of the video
 ## 收藏
 ### 添加收藏
     POST   http://localhost:1103/user/collect/:_vid?token=${token}    /_vid为视频id/
------------------------------------------------------
-    {
-        "cost" : ${cost}    //支付费用(Number)
-    }
-    //如果没有 cost 一般默认为0
     >>  返回 message: '已添加进收藏'
 ### 获取用户全部收藏
     GET   http://localhost:1103/user/allcollect?token=${token}
@@ -223,7 +227,6 @@ The task is about the operation of the video
             "collector" : "***",    // 收藏者
             "author" : "***",    //作者
             "videoTitle" : "***",    //视频名
-            "cost" : ***,    //支付费用
             "vdo_id" : "***"    //视频id
         },
         {...},
@@ -257,6 +260,12 @@ The task is about the operation of the video
     DELETE   http://localhost:1103/user/collect/:_cid?token=${token}
 ### 清除所有收藏
     DELETE   http://localhost:1103/user/allcollectes?token=${token}
+
+### 支付视频
+    POST   http://localhost:1103/user/pay/:_vid?token=${token}    /_vid为视频id/
+----
+    "cost" : ***,    //支付费用
+    //cost > 0　才会改变视频信息中的　paidppnumber　和　paidPerson
 
 # 视频
 ### 上传视频
@@ -296,6 +305,8 @@ The task is about the operation of the video
         "title" : ${title},    //标题(string)
         "introduction" : ${introduction},    //简介(string)
         "price" : ${price},    //价格(Number)
+        "paidPerson" : ${paidPerson},    //付款人ID(string)
+        "cocerPerson" : ${cocerPerson},    //收藏人名字(string)
         "paidppnumber" : ${paidppnumber},    //付款人数(Number)
         "concernednumber" : ${concernednumber}    //收藏人数(Number)
     }
@@ -312,6 +323,8 @@ The task is about the operation of the video
             "title" : "***",    //标题
             "introduction" : "***",    //简介
             "price" : ***,    //价格
+            "paidPerson" : "***",    //付款人ID
+            "cocerPerson" : "***",    //收藏人名字
             "paidppnumber" : ***,    //付款人数
             "concernednumber" : ***    //收藏人数
         },

@@ -1,10 +1,13 @@
 const express = require('express')
 const router = express.Router()
 const jwt = require('jsonwebtoken')
+const verifyToken = require('../verifyToken')
+const User = require('../../Login') //账户
 const Use = require('../Use')
 const Notice = require('./Notice')  //通知
 const Collect = require('./Collect')  //收藏
 const Detail = require('../Videos/Details')  //视频信息
+var Head = require('../Headprts')
 
 //--------------------------------------------------------
 
@@ -20,34 +23,39 @@ router.post('/information', (req,res) => {
 			if(req.body.paypassword == null) req.body.paypassword = ""
 			if(req.body.balance == null) req.body.balance = 0	
 			if(req.body.balance == "") req.body.balance = 0 //设置余额为0
+			if(req.body.paidVideos == null) req.body.paidVideos = []
 			if(req.body.notices == null) req.body.notices = []
 			if(req.body.collects == null) req.body.collects = []
-			uu.set({
-				_id : usert.userId,
-				nickname : req.body.nickname,
-				paypassword : req.body.paypassword,
-				balance : req.body.balance,
-				notices : req.body.notices,
-				collects : req.body.collects
-			})
-			uu.save((err, uuu) => {
-				if(err) return res.send({error: '个人信息已存在,保存失败'})
-				console.log('information added success')
-				// res.send({status: '信息已保存'})
-				res.json(uuu)
+			User.findOne({_id: usert.userId}, (err,userp) => {
+				Head.findOne({_id: usert.userId}, (err,head) => {
+					if(!head) head = {headprturl: ""}
+					uu.set({
+						_id : usert.userId,
+						nickname : req.body.nickname,
+						headPortrait : head.headprturl,
+						phone : userp.phone,
+						paypassword : req.body.paypassword,
+						balance : req.body.balance,
+						paidVideos : req.body.paidVideos,
+						notices : req.body.notices,
+						collects : req.body.collects
+					})
+					uu.save((err, uuu) => {
+						if(err) return res.send({error: '个人信息已存在,保存失败'})
+						console.log('information added success')
+						// res.send({status: '信息已保存'})
+						res.json(uuu)
+					})
+				})
 			})
 		})
 	})
 })
 //个人信息
-router.get('/information', (req,res) => {
-	var token = req.query.token
-	jwt.verify(token, 'secretKey', (err,usert) => {
-		if(err) return res.json('无效的token')
-		Use.findById(usert.userId, (err,usus) => {
-			if(err) return res.send({error: '个人信息获取失败' })
-			res.json(usus)
-		})
+router.get('/information/:_id', (req,res) => {
+	Use.findById(req.params._id, {paypassword: 0, balance: 0}, (err,usus) => {
+		if(err) return res.send({error: '个人信息获取失败' })
+		res.json(usus)
 	})
 })
 //删除个人信息
@@ -63,7 +71,7 @@ router.delete('/information', (req,res) => {
 })
 //
 router.get('/informations', (req,res) => {
-	Use.find({}, {_id:0, _id:1, nickname:1, balance:1, notices:1, collects:1}, (err,all) => {
+	Use.find({}, {paypassword: 0, balance: 0}, (err,all) => {
 		if(err) return res.send({error: '信息获取失败' })
 		res.json(all)
 	})
@@ -221,7 +229,7 @@ router.get('/balance', (req,res) => {
 })
 
 //---------------------------------------------------------
-
+//ID,头像，名，手机，支付视频，发布视频
 //提交新通知
 router.post('/notice', (req,res) => {
 	var token = req.query.token
@@ -234,8 +242,8 @@ router.post('/notice', (req,res) => {
 			}
 			const noti = new Notice()
 
-			if(req.body.videoTitle == null) req.body.videoTitle = ""
-			else if(req.body.IrrelevantTF) req.body.videoTitle = ""
+			if(req.body.videoId == null) req.body.videoId = ""
+			else if(req.body.IrrelevantTF) req.body.videoId = ""
 			if(req.body.outlay == null) req.body.outlay = 0
 			else if(req.body.outlay == "") req.body.outlay = 0
 			else if(req.body.IrrelevantTF) req.body.outlay = 0
@@ -246,18 +254,32 @@ router.post('/notice', (req,res) => {
 			if(req.body.IrrelevantTF == null) req.body.IrrelevantTF = true
 			if(req.body.other == null) req.body.other = "通知"
 			if(req.body.other == "") req.body.other = "通知"
-			noti.set({  //可有多个id
-				owner : user.nickname,
-				videoTitle : req.body.videoTitle,
-				outlay : req.body.outlay,
-				costTF : req.body.costTF,    //true为'-',false为'+'
-				operaTF : req.body.operaTF,   //true为'操作视频',false为'支出收入'
-				rmoveTF : req.body.rmoveTF,   //true为'删除视频',false为'上传视频'
-				IrrelevantTF : req.body.IrrelevantTF,   //true为'其他',false为'相关'
-				other : req.body.other
-			})
-			noti.save((err) => {
-				if(err) return res.send({error: '新通知提交失败'})
+
+			Detail.findOne({_id: req.body.videoId}, (err,detail) => {
+				if(!detail) {
+					detail = {uploader: "", title: "找不到"}
+				}
+				Use.findOne({nickname: detail.uploader}, (err,por) => {
+					if(!por) {
+						por = {_id: "找不到", nickname: "找不到"}
+					}	
+					noti.set({  //可有多个id
+						owner : user.nickname,
+						videoId: req.body.videoId,  //
+						videoTitle : detail.title,
+						payor: por.nickname,
+						payorId: por._id,
+						outlay : req.body.outlay,
+						costTF : req.body.costTF,    //true为'-',false为'+'
+						operaTF : req.body.operaTF,   //true为'操作视频',false为'支出收入'
+						rmoveTF : req.body.rmoveTF,   //true为'删除视频',false为'上传视频'
+						IrrelevantTF : req.body.IrrelevantTF,   //true为'其他',false为'相关'
+						other : req.body.other
+					})
+					noti.save((err) => {
+						if(err) return res.send({error: '新通知提交失败'})
+					})
+				})
 			})
 		})
 	})
@@ -265,13 +287,17 @@ router.post('/notice', (req,res) => {
 		if(err) return console.log('无效的token')
 		Use.findOne( { _id: usert.userId}, (err,user) => {
 			if(err) return res.send({ error: '信息查找失败' })
-			Notice.find({owner: user.nickname},{ _id: 0, _id: 1}, 
-			(err,noids) => {
-				if(err) return res.send({error: '查找不到该用户的通知'})
-				user.notices = noids
-				user.save((err) => {
-					if(err) return res.send({error: 'notices更新失败'})
-					res.send({message: '通知已更新'})
+			Detail.findOne((err,detail) => {       //这部分为同步
+				Use.findOne((err,por) => {
+					Notice.find({owner: user.nickname},{ _id: 0, _id: 1}, 
+					(err,noids) => {
+						if(err) return res.send({error: '查找不到该用户的通知'})
+						user.notices = noids
+						user.save((err) => {
+							if(err) return res.send({error: 'notices更新失败'})
+							res.send({message: '通知已更新'})
+						})
+					})
 				})
 			})
 		})
@@ -324,16 +350,15 @@ router.post('/collect/:_vid', (req,res) => {
 				return
 			}
 			const coll = new Collect()
-			if(req.body.cost == null) req.body.cost = 0
 			Detail.findOne({_id: req.params._vid}, (err,detail) => {
 				if(!detail) return res.send({ error: '视频信息获取失败(id)' })
 				Collect.findOne({videoTitle: detail.title}, (err,same) => {
-					if(same) return res.send({ message: '此收藏已存在' })
+					if(!same) console.log(same)
+					else if(user.nickname == same.collector) return res.send({ message: '此收藏已存在' })
 					coll.set({
 						collector : user.nickname,
 						author : detail.uploader,
 						videoTitle : detail.title,
-						cost : req.body.cost,
 						vdo_id : detail._id
 					})
 					coll.save((err) => {
@@ -342,12 +367,19 @@ router.post('/collect/:_vid', (req,res) => {
 					})
 				})
 			})
+			Detail.update( {_id: req.params._vid}, 
+			{$push: {cocerPerson: user.nickname}, $inc: {concernednumber: 1}}, 
+			{upsert : true}, (err,deta) => {
+				if(!deta) return console.log('插新失败')
+				console.log(deta)
+			})
 		})
 	})
 	//
 	jwt.verify(token, 'secretKey', (err,usert) => {
+		if(!usert) return console.log('无效的token')
 		Use.findOne( { _id: usert.userId}, (err,user) => {
-			Detail.findOne({_id: req.params._vid}, (err) => {     //模仿上段代码中的
+			Detail.findOne({_id: req.params._vid}, (err, detail) => {     //模仿上段代码中的
 				Collect.findOne({}, (err) => {     //模仿上段代码中的
 					//此时查找停留在上个状态,多找一次当作更新
 					Collect.find({collector: user.nickname}, { _id: 0, _id: 1}, 
@@ -359,6 +391,7 @@ router.post('/collect/:_vid', (req,res) => {
 							console.log(clets)
 						})
 					})
+					
 				})
 			})
 		})
@@ -414,10 +447,21 @@ router.delete('/collect/:_cid', (req,res) => {
 			}
 			Collect.findById(req.params._cid, (err,coll) => {
 				if(!coll) return res.send({error: '找不到收藏'})
+				Detail.update( {_id: coll.vdo_id}, 
+				{$pull: {cocerPerson:coll.collector}, $inc: {concernednumber: -1}}, 
+				(err,deta) => {
+					if(!deta) return console.log('删减失败')
+						console.log(deta)
+				})
 				Collect.remove({_id: req.params._cid}, (err) => {
 					if(err) return res.send({error: '清除失败'})
 					res.send({status: '收藏已删除'})
 				})
+			})
+			Use.update({_id: usert.userId}, 
+			{$pull: {collects:req.params._cid}}, (err,cdeta) => {
+				if(!cdeta) return console.log('删减失败')
+					console.log(cdeta)
 			})
 		})
 	})
@@ -437,6 +481,23 @@ router.delete('/allcollectes', (req,res) => {
 				res.send({status: '收藏全部清除'})
 			})
 		})
+	})
+})
+
+//购买
+router.post('/pay/:_vid', (req, res) => {
+	var token = req.query.token
+	jwt.verify(token, 'secretKey', (err,usert) => {
+		if(err) return res.json('无效的token')
+		if(req.body.cost > 0) {
+			Detail.update( {_id: req.params._vid}, 
+			{$push: {paidPerson:usert.userId}, $inc: {paidppnumber: 1}}, 
+			{upsert : true}, (err,deta) => {
+				if(!deta) return console.log('插新失败')
+					console.log(deta)
+			})
+		}
+		else return console.log('no pay')
 	})
 })
 

@@ -111,6 +111,10 @@ router.post('/detail/:_vid', (req,res) => {
         Videophoto.findOne({_id: req.params._vid}, (err,vpurl) => {
           if(!vpurl) return res.send({warning: '请先上传帧图'})
           const description = new Detail()
+          if(req.body.paidPerson == null) req.body.paidPerson = []
+          if(req.body.cocerPerson == null) req.body.cocerPerson = []
+          if(req.body.paidppnumber == null) req.body.paidppnumber = 0
+          if(req.body.concernednumber == null) req.body.concernednumber = 0
           description.set({
             _id: req.params._vid,  //设置视频id和信息id为相同
             uploader: user.nickname,
@@ -119,6 +123,8 @@ router.post('/detail/:_vid', (req,res) => {
             vdoPhotourl: vpurl.videoPhotoUrl,
             introduction: req.body.introduction,
             price: req.body.price,
+            paidPerson: req.body.paidPerson,
+            cocerPerson: req.body.cocerPerson,
             paidppnumber: req.body.paidppnumber,
             concernednumber: req.body.concernednumber
           })

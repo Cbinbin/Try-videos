@@ -2,7 +2,10 @@ const mongoose = require('mongoose')
 
 const NoticeSchema = new mongoose.Schema({
 	owner : String,   //通知所属人
+	videoId: String,
 	videoTitle : String,
+	payor: String,   //
+	payorId: String,   //
 	outlay : Number,
 	costTF : Boolean,  //判断为收入或支出,与outlay有关
 	operaTF : Boolean,  //判断为入出信息或视频操作信息

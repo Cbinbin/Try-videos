@@ -113,9 +113,9 @@ The task is about the operation of the video
         "nickname" : ${nickname},    //昵称(String)
         "paypassword" : ${paypassword},    //支付密码(String)
         "balance" : ${balance},    //余额(Number)
-        //"paidVideos" : ${paidVideos},    //支付视频(String)  [存的只是视频id]
-        //"notices" : ${notices},    //通知(String)  [存的只是通知id]
-        //"collects" : ${collects}    //收藏(String)  [存的只是收藏id]
+        //"paidVideos" : ${paidVideos},    //支付视频(Array)  [存的只是视频id]
+        //"notices" : ${notices},    //通知(Array)  [存的只是通知id]
+        //"collects" : ${collects}    //收藏(Array)  [存的只是收藏id]
         //下面两个不需要用到的
     }
 
@@ -305,8 +305,8 @@ The task is about the operation of the video
         "title" : ${title},    //标题(string)
         "introduction" : ${introduction},    //简介(string)
         "price" : ${price},    //价格(Number)
-        "paidPerson" : ${paidPerson},    //付款人ID(string)
-        "cocerPerson" : ${cocerPerson},    //收藏人名字(string)
+        "paidPerson" : ${paidPerson},    //付款人ID(Array)
+        "cocerPerson" : ${cocerPerson},    //收藏人ID(Array)
         "paidppnumber" : ${paidppnumber},    //付款人数(Number)
         "concernednumber" : ${concernednumber}    //收藏人数(Number)
     }

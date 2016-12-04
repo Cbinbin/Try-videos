@@ -19,12 +19,10 @@ router.post('/', function(req, res) {
 				 expiresIn: '1h'},    //expiresIn设置token有效期
 				(err, token) => {
 					if(err) return res.send({error: '获取token失败'})
-					Head.findOne({_id: admin._id}, {_id:0, headprturl:1}, (err,headurl) => {
-						if(err) return res.send({error: '头像获取失败'})
-						Use.findOne({_id: admin._id}, (err,infmt) => {
-							if(err) return res.send({error: '个人信息获取失败'})
-							res.json([{token: token}, admin, headurl, infmt])
-						})
+						
+					Use.findOne({_id: admin._id}, (err,infmt) => {
+						if(err) return res.send({error: '个人信息获取失败'})
+						res.json([{token: token}, admin, infmt])
 					})					
 				}
 			)

@@ -1,7 +1,6 @@
 const express = require('express')
 const router = express.Router()
 const jwt = require('jsonwebtoken')
-const verifyToken = require('../verifyToken')
 const User = require('../../Login') //账户
 const Use = require('../Use')
 const Notice = require('./Notice')  //通知
@@ -53,7 +52,7 @@ router.post('/information', (req,res) => {
 })
 //个人信息
 router.get('/information/:_id', (req,res) => {
-	Use.findById(req.params._id, {paypassword: 0, balance: 0}, (err,usus) => {
+	Use.findById(req.params._id, (err,usus) => {
 		if(err) return res.send({error: '个人信息获取失败' })
 		res.json(usus)
 	})
@@ -71,7 +70,7 @@ router.delete('/information', (req,res) => {
 })
 //
 router.get('/informations', (req,res) => {
-	Use.find({}, {paypassword: 0, balance: 0}, (err,all) => {
+	Use.find({}, (err,all) => {
 		if(err) return res.send({error: '信息获取失败' })
 		res.json(all)
 	})
@@ -368,7 +367,7 @@ router.post('/collect/:_vid', (req,res) => {
 				})
 			})
 			Detail.update( {_id: req.params._vid}, 
-			{$push: {cocerPerson: user.nickname}, $inc: {concernednumber: 1}}, 
+			{$push: {cocerPerson: usert.userId}, $inc: {concernednumber: 1}}, 
 			{upsert : true}, (err,deta) => {
 				if(!deta) return console.log('插新失败')
 				console.log(deta)
@@ -441,14 +440,11 @@ router.delete('/collect/:_cid', (req,res) => {
 	jwt.verify(token, 'secretKey', (err,usert) => {
 		if(err) return res.json('无效的token')
 		Use.findOne( { _id: usert.userId}, (err,user) => {
-			if(!user) {
-				res.send({ error: '信息查找失败' })
-				return
-			}
+			if(!user) return res.send({ error: '信息查找失败' })	
 			Collect.findById(req.params._cid, (err,coll) => {
 				if(!coll) return res.send({error: '找不到收藏'})
 				Detail.update( {_id: coll.vdo_id}, 
-				{$pull: {cocerPerson:coll.collector}, $inc: {concernednumber: -1}}, 
+				{$pull: {cocerPerson:usert.userId}, $inc: {concernednumber: -1}}, 
 				(err,deta) => {
 					if(!deta) return console.log('删减失败')
 						console.log(deta)
@@ -458,10 +454,27 @@ router.delete('/collect/:_cid', (req,res) => {
 					res.send({status: '收藏已删除'})
 				})
 			})
-			Use.update({_id: usert.userId}, 
-			{$pull: {collects:req.params._cid}}, (err,cdeta) => {
-				if(!cdeta) return console.log('删减失败')
-					console.log(cdeta)
+			// Use.update({_id: usert.userId}, 
+			// {$pull: {collects:req.params._cid}}, (err,cdeta) => {
+			// 	if(!cdeta) return console.log('删减失败')
+			// 		console.log(cdeta)
+			// })
+		})
+	})
+	jwt.verify(token, 'secretKey', (err,usert) => {
+		if(!usert) return console.log('无效的token')
+		Use.findOne( { _id: usert.userId}, (err,user) => {
+			Collect.findOne({}, (err) => {     //模仿上段代码中的
+				//此时查找停留在上个状态,多找一次当作更新
+				Collect.find({collector: user.nickname}, { _id: 0, _id: 1}, 
+				(err,clets) => {
+					if(!clets) return console.log({error: '3'})
+					user.collects = clets
+					user.save((err) => {
+						if(err) return console.log({error: 'collects更新失败'})
+						console.log(clets)
+					})
+				})
 			})
 		})
 	})
@@ -489,15 +502,29 @@ router.post('/pay/:_vid', (req, res) => {
 	var token = req.query.token
 	jwt.verify(token, 'secretKey', (err,usert) => {
 		if(err) return res.json('无效的token')
-		if(req.body.cost > 0) {
-			Detail.update( {_id: req.params._vid}, 
-			{$push: {paidPerson:usert.userId}, $inc: {paidppnumber: 1}}, 
-			{upsert : true}, (err,deta) => {
-				if(!deta) return console.log('插新失败')
-					console.log(deta)
+		Use.findOne({_id: usert.userId}, (err, ifm)=> {
+			if(!ifm) return res.json('个人信息获取失败')
+			if(ifm.balance < req.body.cost) return res.send({warning: '余额不足'})
+			if(req.body.cost > 0) {
+				Detail.update( {_id: req.params._vid}, 
+				{$push: {paidPerson:usert.userId}, $inc: {paidppnumber: 1}}, 
+				{upsert : true}, (err,deta) => {
+					if(!deta) return console.log('插新失败')
+						console.log(deta)
+				})
+				Use.update( {_id: usert.userId}, {$push: {paidVideos:req.params._vid}}, 
+				{upsert : true}, (err, paidv) => {
+					if(!paidv) return console.log('插新失败')
+					console.log({message: 'paidVideos change'})
+				})
+			}
+			else return res.json('no pay')
+			ifm.balance = ifm.balance - req.body.cost
+			ifm.save((err, ifmm)=> {
+				if(err) return console.log('balance ?')
+				res.json(ifmm)
 			})
-		}
-		else return console.log('no pay')
+		})
 	})
 })
 

@@ -112,7 +112,9 @@ router.post('/detail/:_vid', (req,res) => {
           if(!vpurl) return res.send({warning: '请先上传帧图'})
           const description = new Detail()
           if(req.body.paidPerson == null) req.body.paidPerson = []
+          else if(req.body.paidPerson == "") req.body.paidPerson = []
           if(req.body.cocerPerson == null) req.body.cocerPerson = []
+          else if(req.body.cocerPerson == "") req.body.cocerPerson = []
           if(req.body.paidppnumber == null) req.body.paidppnumber = 0
           if(req.body.concernednumber == null) req.body.concernednumber = 0
           description.set({
@@ -126,7 +128,7 @@ router.post('/detail/:_vid', (req,res) => {
             paidPerson: req.body.paidPerson,
             cocerPerson: req.body.cocerPerson,
             paidppnumber: req.body.paidppnumber,
-            concernednumber: req.body.concernednumber
+            concernednumber: req.body.concernednumber,
           })
           description.save((err,detail) => {
             if(err) return res.send({ message: '信息保存失败' })

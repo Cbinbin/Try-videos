@@ -324,7 +324,7 @@ The task is about the operation of the video
             "introduction" : "***",    //简介
             "price" : ***,    //价格
             "paidPerson" : "***",    //付款人ID
-            "cocerPerson" : "***",    //收藏人名字
+            "cocerPerson" : "***",    //收藏人ID
             "paidppnumber" : ***,    //付款人数
             "concernednumber" : ***    //收藏人数
         },

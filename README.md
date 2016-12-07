@@ -206,7 +206,7 @@ The task is about the operation of the video
     // kinds设置为0~9,由数字决定通知种类，自定义
     // 可设为　1:收入,　2:支出,　3:上传视频,　4:删除视频,　5:系统通知
     >>  返回 通知
-### 提交新通知
+### 提交系统通知
     POST   http://localhost:1103/user/notice/system
 ------------------------------------------------------
     {

@@ -168,9 +168,26 @@ The task is about the operation of the video
         "balance" : ${balance}    //余额(Number)
     }
     >>  返回 message: '已更改余额'
+### 加余额（用户ID）
+    PATCH   http://localhost:1103/user/balance/:_id
+----
+    {
+        "income" : ${income}    //收入(Number)
+    }
+    >>  返回 返回个人信息及id
+    {
+        "nickname" : "***",
+        "headPortrait" : "***",
+        "phone" : "***",
+        "paypassword" : "***",
+        "balance" : ***,
+        "paidVideos" : "***",
+        "collects" : "***",
+        "notices" : "***"
+    }
 ### 查余额
     GET   http://localhost:1103/user/balance?token=${token}
-
+----
     >>  返回余额
     {
         "balance" : "***"
@@ -180,17 +197,24 @@ The task is about the operation of the video
     POST   http://localhost:1103/user/notice?token=${token}
 ------------------------------------------------------
     {
-        "videoId" : ${videoId},    //视频ID(String)
-        "outlay" : ${outlay},    //支付收入数目(Number)
-        "costTF" : ${costTF},    //花费 收入判断(Boolean)
-        "operaTF" : ${operaTF},    //视频操作 或 花费判断(Boolean)
-        "rmoveTF" : ${rmoveTF},    //上传 删除判断(Boolean)
-        "IrrelevantTF" : ${IrrelevantTF},    //其他信息 或 相关信息判断(Boolean)
-        "other" : ${other}    //其他信息(String)
+        "videoId" : ${videoId},    //视频ID(String)  默认为""
+        "outlay" : ${outlay},    //支付收入数目(Number)  默认为0
+        "kinds" : ${kinds},    //通知种类(Number)  默认为0
+        "IrrelevantTF" : ${IrrelevantTF},    // 判断已读(Boolean)  默认为false
+        "other" : ${other}    //其他信息(String)  默认为通知
     }
-    >>  返回 message: '通知已更新'
+    // kinds设置为0~9,由数字决定通知种类，自定义
+    // 可设为　1:收入,　2:支出,　3:上传视频,　4:删除视频,　5:系统通知
+    >>  返回 通知
+### 提交新通知
+    POST   http://localhost:1103/user/notice/system
+------------------------------------------------------
+    {
+        "other" : "***"
+    }
+    >>  返回 通知
 ### 获取用户全部通知
-    GET   http://localhost:1103/user/allnotices?token=${token}
+    GET   http://localhost:1103/user/notice/all?token=${token}
 
     >>  返回全部通知
     {
@@ -201,9 +225,7 @@ The task is about the operation of the video
             "payor" : "***",
             "payorId" : "***",
             "outlay" : ***,
-            "costTF" : "***",
-            "operaTF" : "***",
-            "rmoveTF" : "***",
+            "kinds" : "***",
             "IrrelevantTF" : "***",
             "other" : "***"
         },
@@ -211,14 +233,14 @@ The task is about the operation of the video
         ...
     }
 ### 删除全部通知
-    DELETE   http://localhost:1103/user/allnotices?token=${token}
+    DELETE   http://localhost:1103/user/notice/all?token=${token}
 
 ## 收藏
 ### 添加收藏
     POST   http://localhost:1103/user/collect/:_vid?token=${token}    /_vid为视频id/
     >>  返回 message: '已添加进收藏'
 ### 获取用户全部收藏
-    GET   http://localhost:1103/user/allcollect?token=${token}
+    GET   http://localhost:1103/user/collect/all?token=${token}
 
     >>  返回全部收藏
     {
@@ -259,7 +281,10 @@ The task is about the operation of the video
 ### 清除单个收藏
     DELETE   http://localhost:1103/user/collect/:_cid?token=${token}
 ### 清除所有收藏
-    DELETE   http://localhost:1103/user/allcollectes?token=${token}
+    DELETE   http://localhost:1103/user/collect?token=${token}
+----
+    //执行一次，collect即可全部删除
+    //彻底删除detail里面的相关信息，有多少收藏就执行多少次！
 
 ### 支付视频
     POST   http://localhost:1103/user/pay/:_vid?token=${token}    /_vid为视频id/
@@ -313,6 +338,24 @@ The task is about the operation of the video
     >>  返回 status: '信息已以相同id保存'
 ### 删除视频及信息
     DELETE   http://localhost:1103/user/video/detail/:_vid?token=${token}    /_vid为视频的id/
+### 获取已上传视频信息(所有)
+    GET   http://localhost:1103/user/video/detail?token=${token}
+    >>  返回全部视频信息
+    {   
+        {
+            "_id" : "***",    //视频id
+            "uploader" : "***",    //上传者
+            "title" : "***",    //标题
+            "introduction" : "***",    //简介
+            "price" : ***,    //价格
+            "paidPerson" : "***",    //付款人ID
+            "cocerPerson" : "***",    //收藏人ID
+            "paidppnumber" : ***,    //付款人数
+            "concernednumber" : ***    //收藏人数
+        },
+        {...},
+        ...
+    }
 ### 获取全部视频信息
     GET   http://localhost:1103/user/video/all/detail
     >>  返回全部视频信息
@@ -331,3 +374,23 @@ The task is about the operation of the video
         {...},
         ...
     }
+### 添加未上传视频信息
+    POST   http://localhost:1103/user/video/unput?token=${token}
+----
+    {
+        "title" : ${title},    //标题(string)  必填
+        "vdoPath" : ${vdoPath},    //本地视频路径(string)  必填
+        "introduction" : ${introduction},    //简介(string)  必填
+        "price" : ${price}    //价格(Number)
+    }
+    >>  返回　未上传视频信息
+    {
+        "_id" : "***",
+        "uploaderId" : "***",  //视频作者
+        "title" : "***",
+        "vdoPath" : "***",
+        "introduction" : "***",
+        "price" : "***"
+    }
+### 获取未上传视频信息(所有)
+    GET   http://localhost:1103/user/video/unput/all?token=${token}

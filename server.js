@@ -21,6 +21,9 @@ const user = require('./Users/Use/use.js') //
 const image = require('./Users/Headprts/headport.js')
 const video = require('./Users/Videos/video.js')
 const videophoto = require('./Users/Videoptos/videopto.js')
+const notice = require('./Users/Use/Notice/notice.js')
+const collect = require('./Users/Use/Collect/collect.js')
+const balance = require('./Users/Use/BalanChange/blanchange.js')
 
 server.use(bodyParser.json())
 server.use(bodyParser.urlencoded({extended: false}))
@@ -39,10 +42,10 @@ router.use('/user', user)
 router.use('/user/image', image)
 router.use('/user/video', video)
 router.use('/user/videophoto', videophoto)
+router.use('/user/notice', notice)
+router.use('/user/collect', collect)
+router.use('/user/balance', balance)
 
-// server.use('*', (req,res) => {
-// 	res.sendfile(__dirname + '/index.html')
-// })
 server.listen(port, (err) =>{
 	if(err) console.error(err)
 	else console.log('start')

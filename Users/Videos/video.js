@@ -5,6 +5,7 @@ var multer = require('multer')　//文件上传
 var fs = require('fs') //文件操作系统
 var Video = require('../Videos')
 var Detail = require('../Videos/Details')
+const Unput = require('../Videos/Unput')
 const Use = require('../Use')
 var Videophoto = require('../Videoptos')
 
@@ -103,13 +104,16 @@ router.post('/detail/:_vid', (req,res) => {
   // }
   var token = req.query.token
   jwt.verify(token, 'secretKey', (err,usert) => {
-    if(err) return res.json('无效的token')
+    if(err) return res.send(err)
     Use.findOne({ _id: usert.userId }, (err,user) => {
-      if(!user) return res.send({error: '用户id错误'})
+      if(err) return res.send(err)
+      else if(!user) return res.send({error: '用户id错误'})
       Video.findOne({_id: req.params._vid}, (err,vlj) => {
-        if(!vlj) return res.send({error: '视频id错误'})
+        if(err) return res.send(err)
+        else if(!vlj) return res.send({error: '视频id错误'})
         Videophoto.findOne({_id: req.params._vid}, (err,vpurl) => {
-          if(!vpurl) return res.send({warning: '请先上传帧图'})
+          if(err) return res.send(err)
+          else if(!vpurl) return res.send({warning: '请先上传帧图'})
           const description = new Detail()
           if(req.body.paidPerson == null) req.body.paidPerson = []
           else if(req.body.paidPerson == "") req.body.paidPerson = []
@@ -119,6 +123,7 @@ router.post('/detail/:_vid', (req,res) => {
           if(req.body.concernednumber == null) req.body.concernednumber = 0
           description.set({
             _id: req.params._vid,  //设置视频id和信息id为相同
+            uploaderId: user._id,
             uploader: user.nickname,
             title: req.body.title,
             vdourl: vlj.videourl,
@@ -128,19 +133,20 @@ router.post('/detail/:_vid', (req,res) => {
             paidPerson: req.body.paidPerson,
             cocerPerson: req.body.cocerPerson,
             paidppnumber: req.body.paidppnumber,
-            concernednumber: req.body.concernednumber,
+            concernednumber: req.body.concernednumber
           })
           description.save((err,detail) => {
-            if(err) return res.send({ message: '信息保存失败' })
+            if(err) return res.send(err)
             console.log('description added success')
-            res.send({ status: '信息已以相同id保存' })
-            // res.send(detail)
+            // res.send({ status: '信息已以相同id保存' })
+            res.send(detail)
           })
         })
       })
     })
   })  
 })
+
 //获取视频all信息
 router.get('/detail/:_vid', (req,res) => {
   Detail.findById(req.params._vid, (err,detail) => {
@@ -188,11 +194,62 @@ router.delete('/detail/:_vid', (req,res) => {
     })
   })
 })
+//单人全部上传
+router.get('/detail', (req,res) => {
+  var token = req.query.token
+  jwt.verify(token, 'secretKey', (err,usert) => {
+    if(err) return res.json('无效的token')
+    Detail.find({uploaderId: usert.userId}, (err,detailss) => {
+      if(err) return res.send({ error: '信息获取失败' })
+      res.json(detailss)
+    })
+  })
+})
 //
 router.get('/all/detail', (req,res) => {
   Detail.find( (err,detailss) => {
-    if(err) return res.send({ error: '信息获取失败' })
+    if(err) return res.send(err)
     res.json(detailss)
+  })
+})
+
+//添加未上传信息
+router.post('/unput', (req,res) => {
+  var token = req.query.token
+  jwt.verify(token, 'secretKey', (err,usert) => {
+    if(err) return res.json('无效的token')
+    const unp = new Unput()
+    if(req.body.title == null) return res.send({warning:'title不能为空'})
+    else if(req.body.title == "") return res.send({warning:'title不能为空'})
+    if(req.body.vdoPath == null) return res.send({warning:'vdoPath不能为空'})
+    else if(req.body.vdoPath == "") return res.send({warning:'vdoPath不能为空'})
+    if(req.body.introduction == null) return res.send({warning:'introduction不能为空'})
+    else if(req.body.introduction == "") return res.send({warning:'introduction不能为空'})
+    if(req.body.price == null) req.body.price = 0
+    else if(req.body.price == "") req.body.price = 0
+    unp.set({
+        uploaderId: usert.userId,
+        title: req.body.title,
+        vdoPath: req.body.vdoPath,
+        introduction: req.body.introduction,
+        price: req.body.price
+    })
+    unp.save((err,up) => {
+      if(err) return res.send({ message: '信息保存失败' })
+      console.log('unp added success')
+      res.send(up)
+    })
+  })
+})
+//个人全部未上传
+router.get('/unput/all', (req, res)=> {
+  var token = req.query.token
+  jwt.verify(token, 'secretKey', (err,usert) => {
+    if(err) return res.json('无效的token')
+    Unput.find({uploaderId: usert.userId}, (err,unputss) => {
+      if(err) return res.send({ error: '信息获取失败' })
+      res.json(unputss)
+    })
   })
 })
 

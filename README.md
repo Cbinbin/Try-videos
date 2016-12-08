@@ -210,7 +210,7 @@ The task is about the operation of the video
     >>  返回 通知
 ### 获取用户全部通知
     GET   http://localhost:1103/user/notice/all?token=${token}
-
+----
     >>  返回全部通知
     {
         {

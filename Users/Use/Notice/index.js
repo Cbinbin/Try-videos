@@ -6,6 +6,7 @@ const NoticeSchema = new mongoose.Schema({
 	videoTitle : String,
 	payor: String,   //
 	payorId: String,   //
+	payorHeadId: String,
 	outlay : Number,
 	kinds : {
 		type: Number,

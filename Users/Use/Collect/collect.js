@@ -33,7 +33,7 @@ router.post('/:_vid', (req,res) => {
 					})
 					coll.save((err, collect) => {
 						if(err) return res.send(err)
-						res.send(collect)
+						res.send({collectId: collect._id})
 					})
 					Detail.update( {_id: req.params._vid}, 
 					{$push: {cocerPerson: usert.userId}, $inc: {concernednumber: 1}}, 

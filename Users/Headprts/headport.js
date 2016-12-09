@@ -78,6 +78,12 @@ router.get('/', (req,res) => {
 		})
 	})
 })
+router.get('/:_id', (req,res) => {
+	Head.findById( req.params._id, (err,image) => {
+		if(err) return res.send(err)
+		res.json(image)
+	})
+})
 //删除头像(暂时不用)
 router.delete('/:_id', (req,res) => {
 	Head.findOne({ _id: req.params._id}, (err,hurl) => {

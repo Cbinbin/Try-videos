@@ -37,7 +37,7 @@ router.post('/', (req,res) => {
 				Use.findOne({nickname: detail.uploader}, (err,por) => {
 					if(err) return res.send(err)
 					else if(!por) {
-						por = {_id: null, nickname: null}
+						por = {_id: null, nickname: null, headPortrait: null}
 					}	
 					noti.set({  //可有多个id
 						owner : user.nickname,
@@ -45,6 +45,7 @@ router.post('/', (req,res) => {
 						videoTitle : detail.title,
 						payor: por.nickname,
 						payorId: por._id,
+						payorHeadId: por.headPortrait,
 						outlay : req.body.outlay,
 						kinds : req.body.kinds,    //
 						IrrelevantTF : req.body.IrrelevantTF,   //true为'查看',false为'红点'

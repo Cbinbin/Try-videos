@@ -84,6 +84,8 @@ The task is about the operation of the video
 ### 获取头像路径
     GET   http://localhost:1103/user/image?token=${token}
 ----
+    GET   http://localhost:1103/user/image/:_id
+----
     //通过取到的路径去找到图片
     >>  返回头像路径及id
     {
@@ -201,6 +203,19 @@ The task is about the operation of the video
     // kinds设置为0~9,由数字决定通知种类，自定义
     // 可设为　1:收入,　2:支出,　3:上传视频,　4:删除视频,　5:系统通知
     >>  返回 通知
+    {
+            "_id" : "***",
+            "videoId" : "***",
+            "videoTitle" : "***",
+            "payor" : "***",
+            "payorId" : "***",
+            "payorHeadId" : "***",    //头像路径
+            "outlay" : ***,
+            "kinds" : "***",
+            "IrrelevantTF" : "***",
+            "other" : "***",
+            "noticetime" : "***"    //创建时间
+        }
 ### 提交系统通知
     POST   http://localhost:1103/user/notice/system
 ----
@@ -208,6 +223,10 @@ The task is about the operation of the video
         "other" : "***"
     }
     >>  返回 通知
+    {
+        "_id" : "***",
+        "other" : "***"
+    }
 ### 获取用户全部通知
     GET   http://localhost:1103/user/notice/all?token=${token}
 ----
@@ -219,11 +238,12 @@ The task is about the operation of the video
             "videoTitle" : "***",
             "payor" : "***",
             "payorId" : "***",
+            "payorHeadId" : "***",
             "outlay" : ***,
             "kinds" : "***",
             "IrrelevantTF" : "***",
             "other" : "***",
-            "noticetime" : "***"    //创建时间
+            "noticetime" : "***"
         },
         {...},
         ...
@@ -234,7 +254,10 @@ The task is about the operation of the video
 ## 收藏
 ### 添加收藏
     POST   http://localhost:1103/user/collect/:_vid?token=${token}    /_vid为视频id/
-    >>  返回 message: '已添加进收藏'
+    >>  返回 收藏ID
+    {
+        "collectId" : "***"
+    }
 ### 获取用户全部收藏
     GET   http://localhost:1103/user/collect/all?token=${token}
 ----
@@ -261,17 +284,22 @@ The task is about the operation of the video
             "collector" : "***",    // 收藏者
             "author" : "***",    //作者
             "videoTitle" : "***",    //视频名
-            "cost" : ***,    //支付费用
             "vdo_id" : "***"    //视频id
         },
         {
-            "_id" : "***",    //视频id
+            "_id" : "***",    //视频ID
+            "uploaderId" : "***",    //上传者ID
             "uploader" : "***",    //上传者
             "title" : "***",    //标题
+            "vdourl" : "***",    //视频路径
+            "vdoPhotourl": "***",    //视频图
             "introduction" : "***",    //简介
             "price" : ***,    //价格
+            "paidPerson" : "***",    //付款人ID
+            "cocerPerson" : "***",    //收藏人ID
             "paidppnumber" : ***,    //付款人数
-            "concernednumber" : ***    //收藏人数
+            "concernednumber" : ***,    //收藏人数
+            "time" : "***"    //创建时间
         }
     ]
 ### 清除单个收藏
@@ -341,16 +369,15 @@ The task is about the operation of the video
     POST   http://localhost:1103/user/video/detail/:_vid?token=${token}    /_vid为视频的id/
 ----
     {
-        "uploader" : ${uploader},    //上传者(string)
         "title" : ${title},    //标题(string)
         "introduction" : ${introduction},    //简介(string)
         "price" : ${price},    //价格(Number)
-        "paidPerson" : ${paidPerson},    //付款人ID(Array)
-        "cocerPerson" : ${cocerPerson},    //收藏人ID(Array)
-        "paidppnumber" : ${paidppnumber},    //付款人数(Number)
-        "concernednumber" : ${concernednumber}    //收藏人数(Number)
+        //"paidPerson" : ${paidPerson},    //付款人ID(Array)
+        //"cocerPerson" : ${cocerPerson},    //收藏人ID(Array)
+        //"paidppnumber" : ${paidppnumber},    //付款人数(Number)
+        //"concernednumber" : ${concernednumber}    //收藏人数(Number)
     }
-    >>  返回 status: '信息已以相同id保存'
+    >>  返回 视频信息
 ### 删除视频及信息
     DELETE   http://localhost:1103/user/video/detail/:_vid?token=${token}    /_vid为视频的id/
 ### 获取已上传视频信息(所有)
@@ -359,9 +386,12 @@ The task is about the operation of the video
     >>  返回全部视频信息
     {   
         {
-            "_id" : "***",    //视频id
+            "_id" : "***",    //视频ID
+            "uploaderId" : "***",    //上传者ID
             "uploader" : "***",    //上传者
             "title" : "***",    //标题
+            "vdourl" : "***",    //视频路径
+            "vdoPhotourl": "***",    //视频图
             "introduction" : "***",    //简介
             "price" : ***,    //价格
             "paidPerson" : "***",    //付款人ID
@@ -379,9 +409,12 @@ The task is about the operation of the video
     >>  返回全部视频信息
     {   
         {
-            "_id" : "***",    //视频id
+            "_id" : "***",    //视频ID
+            "uploaderId" : "***",    //上传者ID
             "uploader" : "***",    //上传者
             "title" : "***",    //标题
+            "vdourl" : "***",    //视频路径
+            "vdoPhotourl": "***",    //视频图
             "introduction" : "***",    //简介
             "price" : ***,    //价格
             "paidPerson" : "***",    //付款人ID

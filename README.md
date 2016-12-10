@@ -209,7 +209,7 @@ The task is about the operation of the video
             "videoTitle" : "***",
             "payor" : "***",
             "payorId" : "***",
-            "payorHeadId" : "***",    //头像路径
+            "payorHeadUrl" : "***",    //头像路径
             "outlay" : ***,
             "kinds" : "***",
             "IrrelevantTF" : "***",
@@ -238,7 +238,7 @@ The task is about the operation of the video
             "videoTitle" : "***",
             "payor" : "***",
             "payorId" : "***",
-            "payorHeadId" : "***",
+            "payorHeadUrl" : "***",
             "outlay" : ***,
             "kinds" : "***",
             "IrrelevantTF" : "***",

@@ -36,6 +36,12 @@ router.post('/', (req, res) => {
 	        	if(err) return res.send({ error: '文件保存失败'　})
 	        	console.log('image added success')
 	      		res.send(heads)
+	      		Use.update({_id: usert.userId}, 
+	      		{$set: {headPortrait: heads.headprturl}}, 
+	      		{upsert : true}, (err, txt)=> {
+	      			if(err) console.log(err)
+	      			console.log(txt)
+	      		})
 	        })
 		})
 	})
@@ -62,6 +68,12 @@ router.patch('/replace', (req, res) => {
 		        	if(err) return res.send({ error: '文件保存失败'　})
 		        	console.log('image replace success')
 		      		res.send(heads)
+		      		Use.update({_id: usert.userId}, 
+		      		{$set: {headPortrait: heads.headprturl}}, 
+		      		{upsert : true}, (err, txt)=> {
+		      			if(err) console.log(err)
+		      			console.log(txt)
+		      		})
 		        })
 	        })
 		})
